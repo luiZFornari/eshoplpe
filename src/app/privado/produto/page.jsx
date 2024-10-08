@@ -1,14 +1,17 @@
-import Table from "react-bootstrap/Table";
-import { Button } from "react-bootstrap";
-import {
-  getProdutosDB,
-  deleteProdutoDB,
-} from "@/componentes/bd/usecases/produtoUseCases";
 import Link from "next/link";
 import { redirect } from "next/navigation";
 import { revalidatePath } from "next/cache";
 import { Suspense } from "react";
 import Loading from "@/componentes/comuns/Loading";
+import {
+  getProdutosDB,
+  deleteProdutoDB,
+} from "@/componentes/bd/usecases/produtoUseCases";
+import { getServerSession } from "next-auth";
+import { authOptions } from "@/auth/auth";
+
+import Table from "react-bootstrap/Table";
+import { Button } from "react-bootstrap";
 
 const deleteProduto = async (codigo) => {
   "use server";
@@ -25,6 +28,13 @@ const deleteProduto = async (codigo) => {
 export default async function Produto() {
   revalidatePath("/privado/produto/");
 
+  // acessa a sessão
+  const session = await getServerSession(authOptions);
+
+  //se não tem sessão válida redireciona para a tela de login
+  if (!session) {
+    redirect("/api/auth/signin");
+  }
   const produtos = await getProdutosDB();
 
   return (
